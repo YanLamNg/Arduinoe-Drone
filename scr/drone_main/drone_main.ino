@@ -1,13 +1,7 @@
+#include <EEPROM.h>
 #include <Wire.h>
+#include "MPU9250.h"
 
-#define MPU9250_ADDRESS 0x68
-#define AK8963_ADDRESS 0x0C
-#define AK8963_CNTL 0x0A
-
-#define MFS_16BITS 0x01    // 0.15 mG per LSB
-#define M_100Hz 0x06
-#define SERIAL_FREQUENCE 19200
-#define GYRO_ACC_ANGLE_RATIO 0.95
 
 double acc[3], tmp, gyro[3];
 double gyro_error[3] = {0};
@@ -145,7 +139,7 @@ void read_mgnt_data(){
 //    //mgnt[i] *= 0.15;
 //  }
 }
-
+/*
 uint8_t readByte(int address, int subAddress)
 {
     uint8_t data = 0; // `data` will store the register data
@@ -190,7 +184,7 @@ void I2C_writeByte(int dev_addr, int reg_addr, int8_t data) {
   Wire.write(data);
   Wire.endTransmission(true);
 }
-
+*/
 
 void print_gyro_data() {
       Serial.print(" Acce: x=");

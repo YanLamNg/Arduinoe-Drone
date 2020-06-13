@@ -1,3 +1,5 @@
+#include <EEPROM.h>
+#include <Wire.h>
 
 
 void setup() {
