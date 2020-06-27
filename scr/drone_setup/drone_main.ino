@@ -230,13 +230,21 @@ void print_mgnt_data() {
   //  Serial.print(sqrt(double(mgnt[0]*mgnt[0]+mgnt[1]*mgnt[1]+mgnt[2]*mgnt[2])));
 }
 
-
 void setup() {
-  // put your setup code here, to run once:
+  Wire.begin();
+  Serial.begin(SERIAL_FREQUENCE);
+  setup_MPU9250();
+  setup_AK8963();
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  read_gyro_data();
+  update_gyro_angle();
+  read_mgnt_data();
+  
+  print_mgnt_data();
+  print_gyro_angle();
+  //print_gyro_data();
 
 }
