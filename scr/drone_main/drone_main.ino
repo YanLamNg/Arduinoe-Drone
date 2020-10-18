@@ -23,13 +23,16 @@
 #define PITCH_CH ch2_PWM
 #define ROLL_CH ch1_PWM
 
+#define MAX_YAW_SPEED 5  //  degree per second
+#define MAX_PITCH_ANGLE 20 // in degree
+#define MAX_ROLL_ANGLE 20 // in degree
 
 int16_t EEPROM_ERR_ADDR = 0;
 
 boolean CALIBRATION = false;
 double acc[3], tmp, gyro[3];
 float gyro_error[3] = {0};
-double gyro_angle[3] = {0};
+double drone_angle[3] = {0};
 float acc_error[3] = {0};
 double acc_angle[3] = {0};
 double last_gyro_timer = millis();
@@ -38,9 +41,9 @@ int16_t mgnt[3];
 double  Mgnt[3];
 
 double yaw, pitch, roll;
-double prev_yaw, prv_pitch, prev_roll;
+double prevYaw, prevPitch, prevRoll;
 
-
+float target_yaw, target_pitch, target_roll;
 
 //variable for PWM receiver
 
@@ -112,7 +115,7 @@ void setup_MPU9250() {
     get_eeprom_error(EEPROM_ERR_ADDR);
   }
   for (int i = 0; i < 3; i++) {
-    gyro_angle[i] = 0;
+    drone_angle[i] = 0;
   }
   last_gyro_timer = millis();
 }
@@ -195,17 +198,90 @@ void read_gyro_data() {
   last_gyro_timer = theTime;
 }
 
-void update_gyro_angle() {
+void update_drone_angle() {
   acc_angle[0] = atan(acc[1] / sqrt(acc[0] * acc[0] + acc[2] * acc[2])) * 180 / PI;
   acc_angle[1] = -atan(acc[0] / sqrt(acc[1] * acc[1] + acc[2] * acc[2])) * 180 / PI;
 
-  gyro_angle[0] += gyro[0] ;
-  gyro_angle[1] += gyro[1] ;
-  gyro_angle[2] += gyro[2] ;
+  drone_angle[0] = (drone_angle[0]+gyro[0]) * GYRO_ACC_ANGLE_RATIO + acc_angle[0] * (1 - GYRO_ACC_ANGLE_RATIO);
+  drone_angle[1] = (drone_angle[1]+gyro[1]) * GYRO_ACC_ANGLE_RATIO + acc_angle[1] * (1 - GYRO_ACC_ANGLE_RATIO);
+  drone_angle[2] += gyro[2] ;
 
-  gyro_angle[0] = gyro_angle[0] * GYRO_ACC_ANGLE_RATIO + acc_angle[0] * (1 - GYRO_ACC_ANGLE_RATIO);
-  gyro_angle[1] = gyro_angle[1] * GYRO_ACC_ANGLE_RATIO + acc_angle[1] * (1 - GYRO_ACC_ANGLE_RATIO);
   //acc.angle
+}
+
+
+
+#define I_YAW 1
+#define P_YAW 1
+#define D_YAW 1
+#define I_PITCH 1
+#define P_PITCH 1
+#define D_PITCH 1
+#define I_ROLL 1
+#define P_ROLL 1
+#define D_ROLL 1
+
+double yaw_output, pitch_output, roll_output;
+float motorFL, motorFR, motorBL, motorBR;
+
+void calculateMoterOutput(){
+  float delta_yaw = yaw - prevYaw;
+  float delta_pitch = pitch - prevPitch;
+  float delta_roll = roll - prevRoll;
+
+
+  if(THROTTLE_CH > 2000){
+    THROTTLE_CH = 2000;
+  }
+  else if(THROTTLE_CH < 1000){
+    THROTTLE_CH = 1000;
+  }
+
+  if(YAW_CH > 2000){
+    YAW_CH = 2000;
+  }
+  else if(YAW_CH < 1000){
+    YAW_CH = 1000;
+    
+  }
+  if(PITCH_CH > 2000){
+    PITCH_CH = 2000;
+  }
+  else if(PITCH_CH < 1000){
+    PITCH_CH = 1000;
+    
+  }
+  if(ROLL_CH > 2000){
+    ROLL_CH = 2000;
+  }
+  else if(ROLL_CH < 1000){
+    ROLL_CH = 1000;
+  }
+  
+  target_yaw = ((YAW_CH - 1000)/ 1000) * MAX_YAW_SPEED;
+  target_pitch = ((PITCH_CH - 1000)/ 1000) * MAX_PITCH_ANGLE;
+  target_roll = ((ROLL_CH - 1000)/ 1000) * MAX_ROLL_ANGLE;
+
+
+  
+  float error_yaw = yaw - target_yaw;
+  float error_pitch = pitch - target_pitch;
+  float error_roll = roll - target_roll;
+
+  yaw_output = I_YAW * (yaw_output + error_yaw) + P_YAW * error_yaw + D_YAW * delta_yaw;
+  pitch_output = I_PITCH * (pitch_output + error_pitch) + P_PITCH * error_pitch + D_PITCH * delta_pitch;
+  roll_output = I_ROLL * (roll_output + error_roll) + P_ROLL * error_roll + D_ROLL * delta_roll;
+
+  motorFL = THROTTLE_CH - pitch_output + roll_output + yaw_output;
+  motorFR = THROTTLE_CH - pitch_output - roll_output - yaw_output;
+  motorBL = THROTTLE_CH + pitch_output + roll_output - yaw_output;
+  motorBR = THROTTLE_CH + pitch_output - roll_output + yaw_output;
+
+  prevYaw = YAW_CH;
+  prevPitch = PITCH_CH;
+  prevRoll = ROLL_CH;
+
+  
 }
 
 void read_mgnt_data() {
@@ -305,17 +381,14 @@ void print_gyro_data() {
   Serial.print("\n");
 }
 
-void print_gyro_angle() {
-  Serial.print(" gyro_angle: x= ");
-  Serial.print(gyro_angle[0]);
+void print_drone_angle() {
+  Serial.print(" drone_angle: x= ");
+  Serial.print(drone_angle[0]);
   Serial.print(" y= ");
-  Serial.print(gyro_angle[1]);
+  Serial.print(drone_angle[1]);
   Serial.print(" z= ");
-  Serial.print(gyro_angle[2]);
-  Serial.print("  Acce: x=");
-  Serial.print(acc_angle[0]);
-  Serial.print(" y=");
-  Serial.print(acc_angle[1]);
+  Serial.print(drone_angle[2]);
+
   Serial.print("\n");
 }
 
@@ -344,6 +417,18 @@ void printPWD(){
   Serial.println();
 }
 
+void printMotor(){
+  Serial.print("FL: ");
+  Serial.print(motorFL);
+  Serial.print("\tFR: ");
+  Serial.print(motorFR);
+  Serial.print("\tBL: ");
+  Serial.print(motorBL);
+  Serial.print("\tBR: ");
+  Serial.print(motorBR);
+  Serial.println();
+}
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -354,18 +439,21 @@ void setup() {
   setup_MPU9250();
   Serial.println("Setting up AK8963.");
   setup_AK8963();
-  Serial.println("Setting up interrup for  PWM");
+  Serial.println("Setting up interrup for PWM");
   setup_interrupt();
   Serial.println("finish Setup");
 }
 
+
 void loop() {
-//  read_gyro_data();
-//  update_gyro_angle();
+  read_gyro_data();
+  update_drone_angle();
+  calculateMoterOutput();
+  printMotor();
 //  read_mgnt_data();
-  printPWD();
+//  printPWD();
 //  print_mgnt_data();
-//  print_gyro_angle();
+//  print_drone_angle();
 //  print_gyro_data();
   // put your main code here, to run repeatedly:
 
