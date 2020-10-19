@@ -258,9 +258,9 @@ void calculateMoterOutput(){
     ROLL_CH = 1000;
   }
   
-  target_yaw = ((YAW_CH - 1000)/ 1000) * MAX_YAW_SPEED;
-  target_pitch = ((PITCH_CH - 1000)/ 1000) * MAX_PITCH_ANGLE;
-  target_roll = ((ROLL_CH - 1000)/ 1000) * MAX_ROLL_ANGLE;
+  target_yaw = ((YAW_CH - 1500)/ 500.0) * MAX_YAW_SPEED;
+  target_pitch = ((PITCH_CH - 1500)/ 500.0) * MAX_PITCH_ANGLE;
+  target_roll = ((ROLL_CH - 1500)/ 500.0) * MAX_ROLL_ANGLE;
 
 
   
@@ -430,11 +430,26 @@ void printMotor(){
 }
 
 
+
+void printTargetAngle(){
+  
+  Serial.print("target_yaw: ");
+  Serial.print(target_yaw);
+  Serial.print("\ttarget_pitch: ");
+  Serial.print(target_pitch);
+  Serial.print("\ttarget_roll: ");
+  Serial.print(target_roll);
+
+  Serial.println();
+}
 void setup() {
   // put your setup code here, to run once:
   Wire.begin();
   Serial.begin(SERIAL_FREQUENCE);
   Serial.println("Initialize drone.");
+  yaw_output = 0;
+  pitch_output = 0;
+  roll_output = 0;
   Serial.println("Setting up MPU925.");
   setup_MPU9250();
   Serial.println("Setting up AK8963.");
