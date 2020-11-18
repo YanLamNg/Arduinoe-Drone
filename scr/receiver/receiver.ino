@@ -7,10 +7,10 @@
 #define ESC_4_PIN 7
 #define SGINAL_LED 12
 
-#define THROTTLE_CH ch3_PWM;
-#define YAW_CH ch4_PWM;
-#define PITCH_CH ch2_PWM;
-#define ROLL_CH ch1_PWM;
+#define THROTTLE_CH ch3_PWM
+#define YAW_CH ch4_PWM
+#define PITCH_CH ch2_PWM
+#define ROLL_CH ch1_PWM
 
 boolean channel_1, channel_2, channel_3, channel_4;
 long ch1_timer, ch2_timer, ch3_timer, ch4_timer;
