@@ -96,12 +96,12 @@ ISR(PCINT0_vect) {
 
 void printPWD(){
   Serial.print("thorttle: ");
-  Serial.print(THROTTLE_CH);
+  Serial.print(throttle_ch);
   Serial.print("\tPitch: ");
-  Serial.print(PITCH_CH);
+  Serial.print(pitch_ch);
   Serial.print("\tRoll: ");
-  Serial.print(ROLL_CH);
+  Serial.print(roll_ch);
   Serial.print("\tYaw: ");
-  Serial.print(YAW_CH);
+  Serial.print(yaw_ch);
   Serial.println();
 }

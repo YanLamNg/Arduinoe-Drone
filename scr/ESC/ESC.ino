@@ -10,9 +10,10 @@
 int esc[4];
 long escTimer[4];
 long escEndTime[4];
-long escCycleTime = 4000; //4ms
+long escCycleTime = 20000; //20ms
 long prevEscTime;
 int loopCount = 0;
+bool isIncreasing = true;
 
 void setup() {
   Serial.begin(57600);
@@ -21,6 +22,7 @@ void setup() {
 
   pinMode(ESC_1_PIN, OUTPUT);
   pinMode(ESC_2_PIN, OUTPUT);
+
   pinMode(ESC_3_PIN, OUTPUT);
   pinMode(ESC_4_PIN, OUTPUT);
   pinMode(SGINAL_LED, OUTPUT);
@@ -34,11 +36,11 @@ void setup() {
   Serial.println("Waiting 3 seconds");
   delay(3000);
   Serial.println("Start 1000ms pulse ");
-  for(int i = 0; i < 2000; i++ ){
+  for(int i = 0; i < 500; i++ ){
     PORTD |= B11110000;
-    delayMicroseconds(1010);
+    delayMicroseconds(1000);
     PORTD &= B00001111;
-    delayMicroseconds(3000);
+    delay(19);
   }
   Serial.println("end 1000ms pulse ");
    
@@ -49,19 +51,28 @@ void loop() {
   loopCount++;
   if(loopCount > 3){
     loopCount = 0;
-    esc[0]++;
-    if(esc[0]>1300){
-      esc[0] = 1000;
+    if(isIncreasing){
+      esc[0]++;
+    }
+    else{
+      esc[0]--;
+    }
+    
+    if(esc[0]>=1400){
+      isIncreasing = false;
+    }
+    else if(esc[0] <= 1100){
+      isIncreasing = true;
     }
   }
-  esc[1] =esc[0];
-  esc[2] =esc[0];
-  esc[3] =esc[0];
+  esc[1] = 1000;
+  esc[2] =1000;
+  esc[3] =1000;
  
   while(prevEscTime + escCycleTime > micros()){
   }
   prevEscTime =micros();
-  long timer = micros();
+  long timer = prevEscTime;
   PORTD |= B11110000;
 
 
