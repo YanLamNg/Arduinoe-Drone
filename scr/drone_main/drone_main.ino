@@ -15,7 +15,7 @@
 #define MFS_16BITS 0x01    // 0.15 mG per LSB
 #define M_100Hz 0x06
 #define SERIAL_FREQUENCE 57600
-#define GYRO_ACC_ANGLE_RATIO 0.95
+#define GYRO_ACC_ANGLE_RATIO 1//0.99
 
 
 //For ESC 
@@ -245,9 +245,13 @@ void update_droneAngle() {
   accAngle[0] = atan(acc[1] / sqrt(acc[0] * acc[0] + acc[2] * acc[2])) * 180 / PI;
   accAngle[1] = -atan(acc[0] / sqrt(acc[1] * acc[1] + acc[2] * acc[2])) * 180 / PI;
 
-  droneAngle[0] = (droneAngle[0]+gyro[0]) * GYRO_ACC_ANGLE_RATIO + accAngle[0] * (1 - GYRO_ACC_ANGLE_RATIO);
-  droneAngle[1] = (droneAngle[1]+gyro[1]) * GYRO_ACC_ANGLE_RATIO + accAngle[1] * (1 - GYRO_ACC_ANGLE_RATIO);
-  droneAngle[2] += gyro[2] ;
+  
+  
+  droneAngle[0] = (droneAngle[0]+gyro[0]) * GYRO_ACC_ANGLE_RATIO; //+ accAngle[0] * (1 - GYRO_ACC_ANGLE_RATIO);
+  droneAngle[1] = (droneAngle[1]+gyro[1]) * GYRO_ACC_ANGLE_RATIO ;//+ accAngle[1] * (1 - GYRO_ACC_ANGLE_RATIO);
+  droneAngle[1] -= droneAngle[1] * sin(gyro[2] * 3.142 / 180);
+  droneAngle[0] += droneAngle[0] * sin(gyro[2] * 3.142 / 180);
+  droneAngle[2] = gyro[2] ;
 
   //acc.angle
 }
@@ -549,7 +553,7 @@ void printTargetAngle(){
 int countJson = 0;  //testing
 void sendJsonData(){
 
-    if(countJson % 20 == 0){
+    //if(countJson % 20 == 0){
       Serial.print("{");
       Serial.print("\"yawTarg\":" + String(yawTarget, 2));
       Serial.print(",\"pitchTarget\":" + String(pitchTarget, 2));
@@ -588,7 +592,7 @@ void sendJsonData(){
       Serial.println();
   
       countJson = 0;
-    }
+    //}
     countJson++;
     
     
