@@ -1,9 +1,13 @@
 # Arduinoe-Drone
 Building Quadcopter drone F450 with arduion uno 
 
-Hardware:
+### Hardware:
   Arduino UNO
+  
   MPU-9250 9-Axle 16 Bit Gyroscope Acceleration Magnetic Sensor 
+  
   Flysky FS-i6X 6CH 2.4GHz AFHDS RC Transmitter w/ FS-iA6B Receiver
+  
   A2212 1400KV Brushless Motor * 4 
+  
   30A ESC  * 4  
