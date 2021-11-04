@@ -11,3 +11,5 @@ Building Quadcopter drone F450 with arduion uno
   A2212 1400KV Brushless Motor * 4 
   
   30A ESC  * 4  
+
+
