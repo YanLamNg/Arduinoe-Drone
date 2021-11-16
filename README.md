@@ -1,4 +1,4 @@
-# Arduinoe-Drone
+# Arduinoe Drone
 Building Quadcopter drone F450 with arduion uno 
 
 Developed a program in C/C++ using Arduino UNO to control a self-balancing drone.
