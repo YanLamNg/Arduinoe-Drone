@@ -2,8 +2,7 @@
 
 ### Building Quadcopter drone F450 with arduion uno 
 
-Developed a program in C/C++ using Arduino UNO to control a self-balancing drone.
-Read data from radio control receiver, gyroscope, accelerometers and magnetometer
+Developed a program in C/C++ using Arduino UNO to control a self-balancing drone. Read data from radio control receiver, gyroscope, accelerometers and magnetometer
 senses(MPU-9250) to control four ESC brushless motors.
 
 
